@@ -20,6 +20,9 @@ int e_storage_start(STORAGE_NODE node);
 int e_storage_stop(STORAGE_NODE node);
 int e_storage_destroy(STORAGE_NODE node);
 
+// Retrieves the node's SPR (caller must free), or NULL on failure.
+char *e_storage_spr(STORAGE_NODE node);
+
 // Uploads a file. Returns CID string on success (caller must free), or NULL on failure.
 char *e_storage_upload(STORAGE_NODE node, const char *filepath, progress_callback cb);
 

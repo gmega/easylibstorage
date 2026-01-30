@@ -18,7 +18,8 @@ void *storage_new(const char *configJson, StorageCallback callback, void *userDa
 }
 
 int storage_start(void *ctx, StorageCallback callback, void *userData) {
-    if (!ctx) return RET_ERR;
+    if (!ctx)
+        return RET_ERR;
     if (callback) {
         callback(RET_OK, "started", 7, userData);
     }
@@ -26,7 +27,8 @@ int storage_start(void *ctx, StorageCallback callback, void *userData) {
 }
 
 int storage_stop(void *ctx, StorageCallback callback, void *userData) {
-    if (!ctx) return RET_ERR;
+    if (!ctx)
+        return RET_ERR;
     if (callback) {
         callback(RET_OK, "stopped", 7, userData);
     }
@@ -34,7 +36,8 @@ int storage_stop(void *ctx, StorageCallback callback, void *userData) {
 }
 
 int storage_close(void *ctx, StorageCallback callback, void *userData) {
-    if (!ctx) return RET_ERR;
+    if (!ctx)
+        return RET_ERR;
     if (callback) {
         callback(RET_OK, "closed", 6, userData);
     }
@@ -42,7 +45,8 @@ int storage_close(void *ctx, StorageCallback callback, void *userData) {
 }
 
 int storage_destroy(void *ctx, StorageCallback callback, void *userData) {
-    if (!ctx) return RET_ERR;
+    if (!ctx)
+        return RET_ERR;
     if (callback) {
         callback(RET_OK, "destroyed", 9, userData);
     }
@@ -50,7 +54,8 @@ int storage_destroy(void *ctx, StorageCallback callback, void *userData) {
 }
 
 int storage_upload_init(void *ctx, const char *filepath, size_t chunkSize, StorageCallback callback, void *userData) {
-    if (!ctx) return RET_ERR;
+    if (!ctx)
+        return RET_ERR;
     // Return a fake session ID
     const char *session_id = "mock-session-123";
     if (callback) {
@@ -60,7 +65,8 @@ int storage_upload_init(void *ctx, const char *filepath, size_t chunkSize, Stora
 }
 
 int storage_upload_file(void *ctx, const char *sessionId, StorageCallback callback, void *userData) {
-    if (!ctx) return RET_ERR;
+    if (!ctx)
+        return RET_ERR;
     // Fire a progress callback first, then final OK with CID
     if (callback) {
         callback(RET_PROGRESS, "chunk", 5, userData);
@@ -72,7 +78,8 @@ int storage_upload_file(void *ctx, const char *sessionId, StorageCallback callba
 
 int storage_download_init(void *ctx, const char *cid, size_t chunkSize, bool local, StorageCallback callback,
                           void *userData) {
-    if (!ctx) return RET_ERR;
+    if (!ctx)
+        return RET_ERR;
     if (callback) {
         callback(RET_OK, "init", 4, userData);
     }
@@ -81,10 +88,27 @@ int storage_download_init(void *ctx, const char *cid, size_t chunkSize, bool loc
 
 int storage_download_stream(void *ctx, const char *cid, size_t chunkSize, bool local, const char *filepath,
                             StorageCallback callback, void *userData) {
-    if (!ctx) return RET_ERR;
+    if (!ctx)
+        return RET_ERR;
     if (callback) {
         callback(RET_PROGRESS, "data", 4, userData);
         callback(RET_OK, "done", 4, userData);
     }
+    return RET_OK;
+}
+
+int storage_spr(void *ctx, StorageCallback callback, void *userData) {
+    const char *resp = "spr:"
+                       "CiUIAhIhAjWYLRhJho1LoZbaxILgJVTrHptSiejsvLKAqlumo4c4EgIDARpJCicAJQgCEiECNZgtGEmGjUuhltrEguAlVOs"
+                       "em1KJ6Oy8soCqW6ajhzgQsdDzywYaCwoJBLtZShSRAh-"
+                       "aGgsKCQS7WUoUkQIfmipHMEUCIQChjWYvEJE4bE55vtwyAuFvHoGqvpRouXasY7CaIg6nCQIgeCxTWoFmSCNEgMYinM7HuG"
+                       "oCKfoRkcC1pAycNnk-z3A";
+    if (!ctx)
+        return RET_ERR;
+
+    if (callback) {
+        callback(RET_OK, resp, strlen(resp), userData);
+    }
+
     return RET_OK;
 }

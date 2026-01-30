@@ -1,6 +1,7 @@
 #include "easystorage.h"
 #include "libstorage.h"
 
+#include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +18,10 @@ typedef struct {
     size_t len;
     progress_callback pcb;
     int bytes_done;
+    bool unreferenced;
 } resp;
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static resp *resp_alloc(void) {
     resp *r = calloc(1, sizeof(resp));
@@ -27,7 +31,7 @@ static resp *resp_alloc(void) {
 
 static void resp_destroy(resp *r) {
     if (!r) return;
-    free(r->msg);
+    if (r->msg) free(r->msg);
     free(r);
 }
 
@@ -42,9 +46,12 @@ static void on_complete(int ret, const char *msg, size_t len, void *userData) {
     resp *r = userData;
     if (!r) return;
 
-    free(r->msg);
-    r->msg = NULL;
-    r->len = 0;
+    pthread_mutex_lock(&mutex);
+    if (r->unreferenced) {
+        resp_destroy(r);
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
 
     if (msg && len > 0) {
         r->msg = malloc(len + 1);
@@ -56,6 +63,8 @@ static void on_complete(int ret, const char *msg, size_t len, void *userData) {
     }
 
     r->ret = ret;
+    r->unreferenced = true;
+    pthread_mutex_unlock(&mutex);
 }
 
 // Callback for operations that report progress before completing.
@@ -63,18 +72,22 @@ static void on_progress(int ret, const char *msg, size_t len, void *userData) {
     resp *r = userData;
     if (!r) return;
 
+    pthread_mutex_lock(&mutex);
+
+    if (r->unreferenced) {
+        resp_destroy(r);
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
+
     if (ret == RET_PROGRESS) {
         r->bytes_done += (int) len;
         if (r->pcb) {
             r->pcb(0, r->bytes_done, ret);
         }
+        pthread_mutex_unlock(&mutex);
         return; // don't set r->ret yet — still in progress
     }
-
-    // Final callback (RET_OK or RET_ERR)
-    free(r->msg);
-    r->msg = NULL;
-    r->len = 0;
 
     if (msg && len > 0) {
         r->msg = malloc(len + 1);
@@ -86,11 +99,15 @@ static void on_progress(int ret, const char *msg, size_t len, void *userData) {
     }
 
     r->ret = ret;
+    r->unreferenced = true;
+
+    pthread_mutex_unlock(&mutex);
 }
 
 // Dispatches an async call, waits for completion, extracts the result.
 // Returns RET_OK/RET_ERR. If dispatch_ret != RET_OK, returns RET_ERR immediately.
-// If out is non-NULL and the response has a message, *out receives a strdup'd copy.
+// If **out is non-NULL, allocates a buffer and copies the content of
+// resp->msg onto it, which the caller must then free.
 static int call_wait(int dispatch_ret, resp *r, char **out) {
     if (dispatch_ret != RET_OK) {
         resp_destroy(r);
@@ -99,13 +116,19 @@ static int call_wait(int dispatch_ret, resp *r, char **out) {
 
     resp_wait(r);
 
+    pthread_mutex_lock(&mutex);
     int result = (r->ret == RET_OK) ? RET_OK : RET_ERR;
 
     if (out) {
         *out = r->msg ? strdup(r->msg) : NULL;
     }
 
-    resp_destroy(r);
+    if (r->unreferenced) {
+        resp_destroy(r);
+    } else {
+        r->unreferenced = true;
+    }
+    pthread_mutex_unlock(&mutex);
     return result;
 }
 
@@ -160,19 +183,22 @@ STORAGE_NODE e_storage_new(node_config config) {
 }
 
 int e_storage_start(STORAGE_NODE node) {
-    if (!node) return RET_ERR;
+    if (!node)
+        return RET_ERR;
     resp *r = resp_alloc();
     return call_wait(storage_start(node, (StorageCallback) on_complete, r), r, NULL);
 }
 
 int e_storage_stop(STORAGE_NODE node) {
-    if (!node) return RET_ERR;
+    if (!node)
+        return RET_ERR;
     resp *r = resp_alloc();
     return call_wait(storage_stop(node, (StorageCallback) on_complete, r), r, NULL);
 }
 
 int e_storage_destroy(STORAGE_NODE node) {
-    if (!node) return RET_ERR;
+    if (!node)
+        return RET_ERR;
 
     // Close first (tolerate failure)
     resp *r = resp_alloc();
@@ -183,8 +209,21 @@ int e_storage_destroy(STORAGE_NODE node) {
     return call_wait(storage_destroy(node, (StorageCallback) on_complete, r), r, NULL);
 }
 
+char *e_storage_spr(STORAGE_NODE node) {
+    if (!node)
+        return NULL;
+    resp *r = resp_alloc();
+    char *spr = NULL;
+    int ret = call_wait(storage_spr(node, (StorageCallback) on_complete, r), r, &spr);
+    if (ret != RET_OK) {
+        return NULL;
+    }
+    return spr;
+}
+
 char *e_storage_upload(STORAGE_NODE node, const char *filepath, progress_callback cb) {
-    if (!node || !filepath) return NULL;
+    if (!node || !filepath)
+        return NULL;
 
     // Init upload session
     resp *r = resp_alloc();
@@ -216,14 +255,15 @@ char *e_storage_upload(STORAGE_NODE node, const char *filepath, progress_callbac
 }
 
 int e_storage_download(STORAGE_NODE node, const char *cid, const char *filepath, progress_callback cb) {
-    if (!node || !cid || !filepath) return RET_ERR;
+    if (!node || !cid || !filepath)
+        return RET_ERR;
 
     // Init download
     resp *r = resp_alloc();
-    int ret =
-            call_wait(storage_download_init(node, cid, DEFAULT_CHUNK_SIZE, false, (StorageCallback) on_complete, r), r,
-                      NULL);
-    if (ret != RET_OK) return RET_ERR;
+    int ret = call_wait(storage_download_init(node, cid, DEFAULT_CHUNK_SIZE, false, (StorageCallback) on_complete, r),
+                        r, NULL);
+    if (ret != RET_OK)
+        return RET_ERR;
 
     // Stream to file with progress
     r = resp_alloc();

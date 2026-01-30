@@ -114,6 +114,19 @@ static void test_download_null(void) {
     assert(ret == RET_ERR);
 }
 
+static void test_get_should_get_node_spr(void) {
+    node_config cfg = default_config();
+    STORAGE_NODE node = e_storage_new(cfg);
+    assert(node != NULL);
+    assert(e_storage_start(node) == RET_OK);
+
+    const char *sprprefix = "spr:CiUIAhIhA";
+    const char *spr = e_storage_spr(node);
+    assert(spr != NULL);
+    assert(strlen(spr) > 0);
+    assert(strncmp(sprprefix, spr, strlen(sprprefix)) == 0);
+}
+
 static void test_full_lifecycle(void) {
     node_config cfg = default_config();
     cfg.bootstrap_node = "spr:node1";
@@ -148,6 +161,7 @@ int main(void) {
     RUN_TEST(test_upload_null);
     RUN_TEST(test_download);
     RUN_TEST(test_download_null);
+    RUN_TEST(test_get_should_get_node_spr);
     RUN_TEST(test_full_lifecycle);
 
     printf("\n%d/%d tests passed.\n", tests_passed, tests_run);
