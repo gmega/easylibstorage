@@ -1,32 +1,39 @@
-I want you to implement the API described in easylibstorage.h in a file name easylibstorage.c. This is a simplified
-wrapper on top of libstorage. You can find the headers for libstorage here:
+# Context
+I want you to implement the API described in `easylibstorage.h` in a file named `easylibstorage.c`. This is a simplified wrapper on top of `libstorage`.
 
-- /home/giuliano/Work/Status/logos-storage-nim/library/libstorage.h
+# Dependencies
+The headers for `libstorage` are located at `/home/giuliano/Work/Status/logos-storage-nim/library/libstorage.h`.
+**[IMPORTANT]**: If you cannot read this file, stop and ask me to provide the function signatures.
 
-You can find examples of how to use libstorage here:
+The code for libstorage is located at `home/giuliano/Work/Status/logos-storage-nim/library`.
 
-- /home/giuliano/Work/Status/logos-storage-nim/examples/c/examples.c
+There are examples for how libstorage can be used in `/home/giuliano/Work/Status/logos-storage-nim/examples/c/examples.c`.
 
-I want you to implement one function at a time. You MUST follow a Test Driven Development approach where you:
+# Development Process (TDD)
+You MUST follow a Test Driven Development approach. Since no test environment exists yet, your FIRST task is to:
+1. Create a simple test runner (e.g., `tests/test_runner.c`) using basic `assert()` statements.
+2. Update `CMakeLists.txt` to build this test runner.
 
-1. write a test for a function; (red)
-2. write the function;
-3. run it until your test is green; (green)
-4. stop, think of ways to refactor and simplify the code, and do it; (refactor)
-5. once you're done refactoring and the tests are green, move to the next function. This step is VERY IMPORTANT. You MUST look for ways to simplify,
-deduplicate, and coalesce code here, WITHOUT OVERCOMPLICATING. SIMPLICITY
-IS KEY AND YOUR GUIDING PRINCIPLE.
+Then, for *each* function in `easylibstorage.h`:
+1. **Red**: Write a failing test case in `tests/test_runner.c`.
+2. **Green**: Implement the function in `easylibstorage.c` until the test passes.
+3. **Refactor**: Stop, think of ways to refactor and simplify the code, and do it.
 
-Feel free to use an idiomatic C way to write your unit tests, but DO NOT implement the next function before doing
-the full 1-5 cycle first. You need to follow the red-greed-refactor tenets of TDD.
+**CRITICAL**: This refactoring step is VERY IMPORTANT. You MUST look for ways to simplify, deduplicate, and coalesce code here, WITHOUT OVERCOMPLICATING. **SIMPLICITY IS KEY AND YOUR GUIDING PRINCIPLE.**
 
-Finally, I want you to wire all of the above in the console application under main.c. This console application must
-support the following commands:
+# API Implementation Details
+- **Memory Management**: Clearly document who owns returned pointers (e.g., CIDs). Ensure no memory leaks.
+- **Log Levels**: Map the `char *log_level` in the config to the internal `enum log_level`.
+- **Download Return**: Note that `e_storage_download` currently returns `STORAGE_NODE` in the header. If this is a mistake, change it to return `int` (status code) and update the header.
 
-- help (prints help)
-- start [API PORT] [DISCOVERY PORT] [BOOTSTRAP NODE] - creates and starts the node, all parameters are mandatory.
-- stop - stops and destroys the node
-- upload [LOCAL PATH] - uploads a local file to the node. Shows simple progress, prints the CID on screen when done.
-- download [CID] [LOCAL PATH] - downloads a remote CID to a local path. Shows simple progress, prints CID on screen when done.
+# Console Application (`main.c`)
+Wire the API into `main.c`.
+- The current command loop only parses the first argument. You MUST refactor the command dispatch logic or the specific command functions to handle multiple arguments (e.g., `start` needs 3 args).
+- Ensure `progress_print` is correctly passed as a callback to upload/download functions.
 
-If needed, the code for libstorage can also be found under /home/giuliano/Work/Status/logos-storage-nim/library.
+# Commands to Support
+- `help`: Prints the help message.
+- `start [API PORT] [DISC PORT] [BOOTSTRAP NODE]`: Creates and starts the node (all parameters mandatory).
+- `stop`: Stops and destroys the node.
+- `upload [LOCAL PATH]`: Uploads a local file; shows progress; prints CID.
+- `download [CID] [LOCAL PATH]`: Downloads remote CID; shows progress.
