@@ -1,6 +1,12 @@
-# Storage Console
+# easystorage
 
-A simple wrapper and a command-line interface for interacting with libstorage, providing simple file upload and download operations via a distributed storage network.
+A simplified C wrapper around [libstorage](https://github.com/status-im/logos-storage-nim), providing an easy-to-use API for distributed file storage operations.
+
+## Features
+
+- Simple node lifecycle management (create, start, stop, destroy)
+- File upload with progress callback
+- File download by CID with progress callback
 
 ## Prerequisites
 
@@ -15,44 +21,47 @@ cmake -B build -DLOGOS_STORAGE_NIM_ROOT=/path/to/logos-storage-nim
 cmake --build build
 ```
 
-## Running
+This produces:
+- `libeasystorage.so` — the shared library
+- `storageconsole` — an example CLI application
+
+## API
+
+```c
+#include "easystorage.h"
+
+// Create and start a node
+node_config cfg = {
+    .api_port = 8080,
+    .disc_port = 9090,
+    .data_dir = "./data",
+    .log_level = "INFO",
+    .bootstrap_node = "<SPR>"
+};
+STORAGE_NODE node = e_storage_new(cfg);
+e_storage_start(node);
+
+// Upload a file
+char *cid = e_storage_upload(node, "/path/to/file.txt", progress_cb);
+free(cid);
+
+// Download a file
+e_storage_download(node, cid, "/path/to/output.txt", progress_cb);
+
+// Cleanup
+e_storage_stop(node);
+e_storage_destroy(node);
+```
+
+## Example: storageconsole
+
+An interactive CLI is included in `examples/storageconsole.c`:
 
 ```bash
 ./build/storageconsole
 ```
 
-## Commands
-
-| Command | Description |
-|---------|-------------|
-| `help` | Prints available commands |
-| `start [API_PORT] [DISC_PORT] [DATA_DIR] [BOOTSTRAP_NODE]` | Creates and starts a storage node |
-| `stop` | Stops and destroys the node |
-| `upload [PATH]` | Uploads a local file; displays progress and prints CID |
-| `download [CID] [PATH]` | Downloads content by CID to a local path |
-| `quit` | Exits the program |
-
-### Example Session
-
-```
-> start 8080 9090 ./data <bootstrap SPR>
-Creating node...
-Starting node...
-Node started on API port 8080, discovery port 9090.
-
-> upload /path/to/file.txt
-Uploading /path/to/file.txt...
-  1024 / 1024 bytes
-CID: QmXyz...
-
-> download QmXyz... /path/to/output.txt
-Downloading QmXyz... to /path/to/output.txt...
-  1024 / 1024 bytes
-Download complete.
-
-> quit
-Quitting...
-```
+Commands: `help`, `start`, `stop`, `upload`, `download`, `quit`.
 
 ## Testing
 
@@ -64,12 +73,13 @@ cmake --build build
 ## Project Structure
 
 ```
-storageconsole/
-├── main.c              # Console application
-├── easylibstorage.h    # Simplified libstorage API
-├── easylibstorage.c    # API implementation
+easystorage/
+├── easystorage.h         # Public API
+├── easystorage.c         # Implementation
+├── examples/
+│   └── storageconsole.c  # CLI example
 ├── tests/
-│   ├── test_runner.c   # Unit tests
+│   ├── test_runner.c
 │   └── mock_libstorage.c
 └── CMakeLists.txt
 ```

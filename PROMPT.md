@@ -1,5 +1,5 @@
 # Context
-I want you to implement the API described in `easylibstorage.h` in a file named `easylibstorage.c`. This is a simplified wrapper on top of `libstorage`.
+I want you to implement the API described in `easystorage.h` in a file named `easystorage.c`. This is a simplified wrapper on top of `libstorage`.
 
 # Dependencies
 The headers for `libstorage` are located at `/home/giuliano/Work/Status/logos-storage-nim/library/libstorage.h`.
@@ -14,9 +14,9 @@ You MUST follow a Test Driven Development approach. Since no test environment ex
 1. Create a simple test runner (e.g., `tests/test_runner.c`) using basic `assert()` statements.
 2. Update `CMakeLists.txt` to build this test runner.
 
-Then, for *each* function in `easylibstorage.h`:
+Then, for *each* function in `easystorage.h`:
 1. **Red**: Write a failing test case in `tests/test_runner.c`.
-2. **Green**: Implement the function in `easylibstorage.c` until the test passes.
+2. **Green**: Implement the function in `easystorage.c` until the test passes.
 3. **Refactor**: Stop, think of ways to refactor and simplify the code, and do it.
 
 **CRITICAL**: This refactoring step is VERY IMPORTANT. You MUST look for ways to simplify, deduplicate, and coalesce code here, WITHOUT OVERCOMPLICATING. **SIMPLICITY IS KEY AND YOUR GUIDING PRINCIPLE.**

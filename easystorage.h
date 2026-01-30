@@ -1,5 +1,5 @@
-#ifndef STORAGECONSOLE_EASYLIBSTORAGE_H
-#define STORAGECONSOLE_EASYLIBSTORAGE_H
+#ifndef EASYSTORAGE_H
+#define EASYSTORAGE_H
 
 #define STORAGE_NODE void *
 
@@ -26,4 +26,4 @@ char *e_storage_upload(STORAGE_NODE node, const char *filepath, progress_callbac
 // Downloads content identified by cid to filepath. Returns 0 on success.
 int e_storage_download(STORAGE_NODE node, const char *cid, const char *filepath, progress_callback cb);
 
-#endif // STORAGECONSOLE_EASYLIBSTORAGE_H
+#endif // EASYSTORAGE_H

@@ -1,4 +1,4 @@
-#include "easylibstorage.h"
+#include "easystorage.h"
 
 #include <limits.h>
 #include <stdio.h>
