@@ -25,7 +25,7 @@ static resp *resp_alloc(void) {
     return r;
 }
 
-static void resp_free(resp *r) {
+static void resp_destroy(resp *r) {
     if (!r) return;
     free(r->msg);
     free(r);
@@ -93,7 +93,7 @@ static void on_progress(int ret, const char *msg, size_t len, void *userData) {
 // If out is non-NULL and the response has a message, *out receives a strdup'd copy.
 static int call_wait(int dispatch_ret, resp *r, char **out) {
     if (dispatch_ret != RET_OK) {
-        resp_free(r);
+        resp_destroy(r);
         return RET_ERR;
     }
 
@@ -105,7 +105,7 @@ static int call_wait(int dispatch_ret, resp *r, char **out) {
         *out = r->msg ? strdup(r->msg) : NULL;
     }
 
-    resp_free(r);
+    resp_destroy(r);
     return result;
 }
 
@@ -144,18 +144,18 @@ STORAGE_NODE e_storage_new(node_config config) {
     void *ctx = storage_new(json, (StorageCallback) on_complete, r);
 
     if (!ctx) {
-        resp_free(r);
+        resp_destroy(r);
         return NULL;
     }
 
     resp_wait(r);
 
     if (r->ret != RET_OK) {
-        resp_free(r);
+        resp_destroy(r);
         return NULL;
     }
 
-    resp_free(r);
+    resp_destroy(r);
     return ctx;
 }
 

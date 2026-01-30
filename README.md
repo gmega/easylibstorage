@@ -1,6 +1,6 @@
 # Storage Console
 
-A command-line interface for interacting with libstorage, providing simple file upload and download operations via a distributed storage network.
+A simple wrapper and a command-line interface for interacting with libstorage, providing simple file upload and download operations via a distributed storage network.
 
 ## Prerequisites
 
