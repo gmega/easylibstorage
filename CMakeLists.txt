@@ -47,16 +47,18 @@ target_link_libraries(storageconsole PRIVATE easystorage)
 target_link_libraries(storageconsole PRIVATE ${LIBSTORAGE_PATH})
 
 # --- Example: uploader/downloader ---
-add_executable(uploader
-        examples/uploader.c)
+if (COMPILE_TUTORIAL_EXAMPLES)
+    add_executable(uploader
+            examples/uploader.c)
 
-add_executable(downloader
-        examples/downloader.c)
+    add_executable(downloader
+            examples/downloader.c)
 
-target_link_libraries(uploader PRIVATE easystorage)
-target_link_libraries(downloader PRIVATE easystorage)
-target_link_libraries(uploader PRIVATE ${LIBSTORAGE_PATH})
-target_link_libraries(downloader PRIVATE ${LIBSTORAGE_PATH})
+    target_link_libraries(uploader PRIVATE easystorage)
+    target_link_libraries(downloader PRIVATE easystorage)
+    target_link_libraries(uploader PRIVATE ${LIBSTORAGE_PATH})
+    target_link_libraries(downloader PRIVATE ${LIBSTORAGE_PATH})
+endif()
 
 # --- Tests ---
 enable_testing()
