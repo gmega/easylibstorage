@@ -229,8 +229,7 @@ int e_storage_close(STORAGE_NODE node) {
 int e_storage_destroy(STORAGE_NODE node) {
     if (!node)
         return RET_ERR;
-    resp *r = resp_alloc();
-    return call_wait(storage_destroy(node, (StorageCallback) on_complete, r), r, NULL);
+    return storage_destroy(node);
 }
 
 char *e_storage_spr(STORAGE_NODE node) {

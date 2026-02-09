@@ -47,12 +47,9 @@ int storage_close(void *ctx, StorageCallback callback, void *userData) {
     return RET_OK;
 }
 
-int storage_destroy(void *ctx, StorageCallback callback, void *userData) {
+int storage_destroy(void *ctx) {
     if (!ctx)
         return RET_ERR;
-    if (callback) {
-        callback(RET_OK, "destroyed", 9, userData);
-    }
     return RET_OK;
 }
 
