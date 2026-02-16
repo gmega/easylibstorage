@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
             .data_dir = "./downloader-data",
             .log_level = "TRACE",
             .bootstrap_node = "spr:CiUIAhIhApIj9p6zJDRbw2NoCo-tj98Y760YbppRiEpGIE1yGaMzEgIDARpJCicAJQgCEiECkiP2nrMkNFvDY2gKj62P3xjvrRhumlGISkYgTXIZozMQvcz8wQYaCwoJBAWhF3WRAnVEGgsKCQQFoRd1kQJ1RCpGMEQCIFZB84O_nzPNuViqEGRL1vJTjHBJ-i5ZDgFL5XZxm4HAAiB8rbLHkUdFfWdiOmlencYVn0noSMRHzn4lJYoShuVzlw",
-            .listen_addr = "/ip4/127.0.0.1/tcp/65032",
+            .listen_addr = "/ip4/0.0.0.0/tcp/65032",
     };
 
     STORAGE_NODE node = e_storage_new(cfg);
