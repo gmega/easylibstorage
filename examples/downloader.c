@@ -28,8 +28,8 @@ int main(int argc, char *argv[]) {
             .api_port = 8081,
             .disc_port = 9091,
             .data_dir = "./downloader-data",
-            .log_level = "INFO",
-            .bootstrap_node = spr,
+            .log_level = "TRACE",
+            .bootstrap_node = "spr:CiUIAhIhA-VlcoiRm02KyIzrcTP-ljFpzTljfBRRKTIvhMIwqBqWEgIDARpJCicAJQgCEiED5WVyiJGbTYrIjOtxM_6WMWnNOWN8FFEpMi-EwjCoGpYQs8n8wQYaCwoJBHTKubmRAnU6GgsKCQR0yrm5kQJ1OipHMEUCIQDwUNsfReB4ty7JFS5WVQ6n1fcko89qVAOfQEHixa03rgIgan2-uFNDT-r4s9TOkLe9YBkCbsRWYCHGGVJ25rLj0QE",
             .nat = "none",
     };
 

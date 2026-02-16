@@ -86,14 +86,23 @@ Commands: `help`, `start`, `stop`, `upload`, `download`, `quit`.
 
 ### uploader / downloader
 
-Standalone programs that demonstrate file sharing between two nodes. On one machine, start the uploader:
+Standalone programs that demonstrate file sharing between two nodes. 
+
+Optionally generate a file to upload. For example, using `dd` on nix-based systems:
+
+```bash
+# generate a 500MB file with random contents
+dd if=/dev/urandom of=myfile.txt bs=1048576 count=500
+```
+
+On one machine, start the uploader, passing in the path to a file to upload:
 
 ```bash
 ./build/uploader ./myfile.txt
 # prints: Run: downloader <SPR> <CID> ./output-file
 ```
 
-On another (or the same machine), run the downloader with the printed values:
+In another terminal, run the downloader with the printed values:
 
 ```bash
 ./build/downloader <SPR> <CID> ./output-file
