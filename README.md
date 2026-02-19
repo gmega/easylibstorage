@@ -12,7 +12,7 @@ examples showing how to implement simple filesharing apps.
 ## Building
 
 ```bash
-cmake -B build -DLOGOS_STORAGE_NIM_ROOT=/path/to/logos-storage-nim
+cmake -B build -DLOGOS_STORAGE_NIM_ROOT=/path/to/logos-storage-nim -DCOMPILE_TUTORIAL_EXAMPLES=1
 cmake --build build
 ```
 
